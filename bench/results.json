@@ -1,19 +1,62 @@
 {
-  "when": "2026-11-12 06:52",
-  "total_cost_usd": 0.013,
+  "when": "2026-11-12 09:24",
+  "total_cost_usd": 0.05263,
   "results": [
+    {
+      "level": 1,
+      "name": "valid manifest",
+      "pass": true,
+      "checks_total": 7,
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 1.5,
+      "cost_usd": 0.0036264,
+      "model": "qwen/qwen3.6-27b",
+      "files": [
+        "manifest.json"
+      ]
+    },
+    {
+      "level": 2,
+      "name": "content script",
+      "pass": true,
+      "checks_total": 11,
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 1.5,
+      "cost_usd": 0.0028448,
+      "model": "qwen/qwen3.6-27b",
+      "files": [
+        "manifest.json",
+        "content.js"
+      ]
+    },
+    {
+      "level": 3,
+      "name": "popup reads the page",
+      "pass": true,
+      "checks_total": 14,
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 2.3,
+      "cost_usd": 0.0052368,
+      "model": "qwen/qwen3.6-27b",
+      "files": [
+        "manifest.json",
+        "popup.html",
+        "popup.js"
+      ]
+    },
     {
       "level": 4,
       "name": "service worker + storage + badge",
-      "pass": false,
+      "pass": true,
       "checks_total": 17,
-      "checks_failed": 1,
-      "failed": [
-        "declares action (popup)"
-      ],
-      "secs": 1.2,
-      "cost_usd": 0.006239200000000001,
-      "model": "qwen/qwen3.8-27b",
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 2.0,
+      "cost_usd": 0.0043104,
+      "model": "qwen/qwen3.6-27b",
       "files": [
         "manifest.json",
         "content.js",
@@ -23,19 +66,49 @@
     {
       "level": 5,
       "name": "reads a number off a page",
-      "pass": false,
+      "pass": true,
       "checks_total": 15,
-      "checks_failed": 1,
-      "failed": [
-        "every file the manifest names was written"
-      ],
-      "secs": 1.4,
-      "cost_usd": 0.006760800000000001,
-      "model": "qwen/qwen3.8-27b",
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 4.4,
+      "cost_usd": 0.007449600000000001,
+      "model": "qwen/qwen3.6-27b",
       "files": [
         "manifest.json",
         "content.js",
         "background.js"
+      ]
+    },
+    {
+      "level": 6,
+      "name": "command bridge to a local server",
+      "pass": true,
+      "checks_total": 17,
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 8.6,
+      "cost_usd": 0.0177136,
+      "model": "qwen/qwen3.6-27b",
+      "files": [
+        "manifest.json",
+        "background.js",
+        "content.js"
+      ]
+    },
+    {
+      "level": 7,
+      "name": "human-like typing, retries, self-reload",
+      "pass": true,
+      "checks_total": 17,
+      "checks_failed": 0,
+      "failed": [],
+      "secs": 5.4,
+      "cost_usd": 0.0114512,
+      "model": "qwen/qwen3.6-27b",
+      "files": [
+        "manifest.json",
+        "background.js",
+        "content.js"
       ]
     }
   ]

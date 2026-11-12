@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mantra Mark",
   "version": "1.0.0",
-  "description": "Sets document title to MANTRA on example.com",
+  "description": "Sets the page title to MANTRA on example.com.",
   "content_scripts": [
     {
       "matches": ["https://example.com/*"],

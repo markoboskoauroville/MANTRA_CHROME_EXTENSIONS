@@ -1,9 +1,6 @@
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'LINK_COUNT' && sender.tab && sender.tab.id) {
-    const tabId = sender.tab.id;
-    const count = message.count;
-    
-    chrome.storage.local.set({ [`link_count_${tabId}`]: count });
-    chrome.action.setBadgeText({ text: count.toString(), tabId });
-  }
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type !== "LINK_COUNT") return;
+  const n = msg.count;
+  chrome.storage.local.set({ linkCount: n });
+  chrome.action.setBadgeText({ text: String(n) });
 });

@@ -1,0 +1,10 @@
+{
+  "name": "ExampleApp",
+  "version": 1,
+  "enabled": true,
+  "hosts": [
+    "host1.example.com",
+    "host2.example.com",
+    "host3.example.com"
+  ]
+}

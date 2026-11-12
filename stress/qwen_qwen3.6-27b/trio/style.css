@@ -1,0 +1,9 @@
+#go {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+#out {
+  margin-top: 12px;
+  font-size: 1.2rem;
+}

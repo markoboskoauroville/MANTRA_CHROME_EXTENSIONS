@@ -1,7 +1,7 @@
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "GET_CREDITS") {
-    chrome.storage.local.get(["credits", "timestamp"]).then((data) => {
-      sendResponse({ credits: data.credits || null, timestamp: data.timestamp || null });
+chrome.runtime.onMessage.addListener(function (msg, _sender, sendResponse) {
+  if (msg && msg.type === "getCredits") {
+    chrome.storage.local.get("credits", function (result) {
+      sendResponse(result.credits || null);
     });
     return true;
   }

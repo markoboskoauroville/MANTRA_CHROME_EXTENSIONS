@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mantra Peek",
   "version": "1.0.0",
-  "description": "Peeks at the active tab title.",
+  "description": "Press Read to peek the active tab's title.",
   "permissions": ["activeTab", "scripting"],
   "action": {
     "default_popup": "popup.html"

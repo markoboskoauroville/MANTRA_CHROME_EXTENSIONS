@@ -2,18 +2,15 @@
   "manifest_version": 3,
   "name": "Mantra Credits",
   "version": "1.0.0",
-  "description": "Tracks Claude credits.",
+  "description": "Captures the first dollar amount on platform.claude.com and stores it locally.",
   "permissions": ["storage"],
-  "background": {
-    "service_worker": "background.js"
-  },
   "content_scripts": [
     {
       "matches": ["https://platform.claude.com/*"],
       "js": ["content.js"]
     }
   ],
-  "action": {
-    "default_popup": "popup.html"
+  "background": {
+    "service_worker": "background.js"
   }
 }

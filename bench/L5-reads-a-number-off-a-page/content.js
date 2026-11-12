@@ -1,10 +1,13 @@
-(() => {
-  const text = document.body.innerText;
-  const match = text.match(/\$[\d,]+(\.\d+)?/);
+(function () {
+  "use strict";
+  var text = document.body ? document.body.innerText : "";
+  var match = text.match(/\$[\d,]+(?:\.\d{1,2})?/);
   if (match) {
     chrome.storage.local.set({
-      credits: match[0],
-      timestamp: Date.now()
+      credits: {
+        amount: match[0],
+        timestamp: new Date().toISOString()
+      }
     });
   }
 })();

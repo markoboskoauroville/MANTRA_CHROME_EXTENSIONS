@@ -1,0 +1,194 @@
+
+<think>
+The user wants a Chrome Manifest V3 extension called "Mantra Bridge" with three files: manifest.json, background.js, and content.js.
+
+Let me think through the architecture:
+
+1. **manifest.json**: MV3, service worker (background.js), content_scripts (content.js), permissions needed: storage (for chrome.storage), scripting (for chrome.scripting.executeScript), host_permissions for http://127.0.0.1:8765/*, and also permissions for the content script to access all URLs it needs to run on. Actually, content scripts need "http://*/*" and "https://*/*" in permissions or host_permissions to be injected.
+
+Wait, let me reconsider. The content script is injected via "content_scripts" in manifest. It needs to run on all pages, so I'll use `<all_urls>` in content_scripts matches.
+
+Permissions needed:
+- "storage" - if I use chrome.storage
+- "scripting" - if I use chrome.scripting.executeScript
+- host_permissions: ["http://127.0.0.1:8765/*"] for the fetch calls from the service worker
+
+Actually, in MV3, `fetch` from a service worker to `http://127.0.0.1:8765` needs `host_permissions` for that origin.
+
+Let me think about whether I need "scripting". The content script is declared in manifest's "content_scripts" so it's auto-injected. I don't need chrome.scripting.executeScript for that. But I do need to send messages from background to content script, which is done via `chrome.tabs.sendMessage` - that doesn't need "scripting" permission.
+
+So permissions: ["storage"] (maybe not needed, but safe), host_permissions: ["http://127.0.0.1:8765/*"]
+
+Actually, do I need "tabs"? For `chrome.tabs.query` to get the active tab, I need "tabs" permission or at least to query tabs. Actually in MV3, `chrome.tabs.query` is available without "tabs" permission for basic queries. But to access `tab.url` you need "tabs" permission. However I just need the tab ID, which should be fine without "tabs".
+
+Let me also consider: the content script needs to be on pages. I'll match `<all_urls>`.
+
+Now the three Mistake rules:
+1. If I use `chrome.action.*`, I need "action" in manifest. I won't use chrome.action, so no issue. But wait, should I add an action? The user didn't ask for one. I'll skip it.
+2. Every file the manifest names MUST be written. I'll name background.js and content.js in manifest. I need to write both.
+3. Every file I write MUST be reachable. content.js is in "content_scripts", background.js is in "background". Both are reachable.
+
+Let me write the files:
+
+**manifest.json**:
+```json
+{
+  "manifest_version": 3,
+  "name": "Mantra Bridge",
+  "version": "1.0",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "permissions": ["storage"],
+  "host_permissions": ["http://127.0.0.1:8765/*"]
+}
+```
+
+Wait, do I need "storage"? I'm not using chrome.storage in this design. Let me remove it to keep it minimal. Actually, let me think if I need any permissions at all. 
+
+- `chrome.tabs.query` - available by default in MV3
+- `chrome.tabs.sendMessage` - available without extra permissions
+- `fetch` to 127.0.0.1:8765 - needs host_permissions
+
+So I only need host_permissions. Let me not add "storage" since I'm not using it.
+
+Actually wait - for content scripts to be injected, I need the matches. That's in content_scripts, not permissions.
+
+Let me finalize:
+
+**manifest.json**:
+```json
+{
+  "manifest_version": 3,
+  "name": "Mantra Bridge",
+  "version": "1.0",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["http://127.0.0.1:8765/*"]
+}
+```
+
+**background.js**:
+- Polls http://127.0.0.1:8765/api/ext/poll every 2 seconds
+- On response, parse JSON
+- If there's an action, forward to active tab's content script via chrome.tabs.sendMessage
+- Get the result back
+- POST the result to http://127.0.0.1:8765/api/ext/result
+- Handle fetch errors gracefully (try/catch)
+
+```javascript
+const POLL_URL = 'http://127.0.0.1:8765/api/ext/poll';
+const RESULT_URL = 'http://127.0.0.1:8765/api/ext/result';
+const POLL_INTERVAL = 2000;
+
+async function poll() {
+  try {
+    const res = await fetch(POLL_URL);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !data.action) return;
+
+    // Get active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !tab.id) return;
+
+    // Forward to content script
+    const result = await chrome.tabs.sendMessage(tab.id, {
+      type: 'MANTRA_COMMAND',
+      id: data.id,
+      action: data.action,
+      selector: data.selector,
+      text: data.text
+    });
+
+    // Post result back
+    try {
+      await fetch(RESULT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: data.id,
+          result: result !== undefined ? result : { error: 'no response from content script' }
+        })
+      });
+    } catch (e) {
+      console.error('Mantra Bridge: failed to POST result:', e);
+    }
+  } catch (e) {
+    // Network error, server down, etc. - don't crash
+    console.error('Mantra Bridge: poll error:', e);
+  }
+}
+
+// Start polling
+setInterval(poll, POLL_INTERVAL);
+poll(); // immediate first poll
+```
+
+Wait, `chrome.tabs.sendMessage` will throw or return empty if there's no content script in the tab (like on chrome:// pages). I should wrap it in try/catch.
+
+Let me also think: what if the content script isn't on the page? `chrome.tabs.sendMessage` will throw a runtime error "Could not establish connection. Receiving end does not exist." I need to catch that.
+
+**content.js**:
+- Listens for messages of type 'MANTRA_COMMAND'
+- Performs the action:
+  - "click": find element by selector, click it, return result
+  - "type": find element by selector, type text (set value, dispatch events), return result
+  - "read": find element by selector, read text content or value, return result
+- Returns the result
+
+```javascript
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type !== 'MANTRA_COMMAND') return;
+
+  const { id, action, selector, text } = msg;
+
+  try {
+    const el = document.querySelector(selector);
+    if (!el) {
+      sendResponse({ error: 'selector not found: ' + selector });
+      return;
+    }
+
+    switch (action) {
+      case 'click':
+        el.click();
+        sendResponse({ ok: true, action: 'click', selector });
+        break;
+      case 'type':
+        el.focus();
+        el.value = text || '';
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        sendResponse({ ok: true, action: 'type', selector, value: el.value });
+        break;
+      case 'read':
+        const value = el.value !== undefined ? el.value : el.textContent;
+        sendResponse({ ok: true, action: 'read', selector, value: value.trim() });
+        break;
+      default:
+        sendResponse({ error: 'unknown action: ' + action });
+    }
+  } catch (e) {
+    sendResponse({ error: e.message });
+  }
+
+  return true; // keep channel open for async sendResponse - actually it's sync here so not needed, but safe
+});
+```
+
+Wait, `return true` is needed if you call sendResponse asynchronously. Since all my sendResponse calls are synchronous

@@ -92,7 +92,8 @@ LEVELS = [
 
 
 def ask(prompt, model=None):
-    body = {"prompt": prompt, "mode": "code"}
+    # fresh: each level is independent (12.11.2026 - see queen_stress.py)
+    body = {"prompt": prompt, "mode": "code", "fresh": True}
     if model:
         body["model"] = model
     req = urllib.request.Request(f"{QUEEN}/api/remote/send", data=json.dumps(body).encode(),
@@ -104,6 +105,12 @@ def ask(prompt, model=None):
 
 
 def split_files(text):
+    # The qwen models think out loud in <think>...</think>, and that reasoning QUOTES the "=== FILE: x ===" format
+    # from the instructions. Reading it as output made Queen look like she wrote a broken content.js when she had
+    # actually reasoned "only manifest.json is needed" (12.11.2026). Strip the thinking first, and when a filename
+    # appears twice keep the LAST block - the real answer comes after the reasoning.
+    text = re.sub(r"<think>.*?</think>", "", text or "", flags=re.S | re.I)
+    text = re.sub(r"<think>.*", "", text, flags=re.S | re.I)      # an unclosed think block eats the rest
     out, cur, buf = {}, None, []
     for line in text.splitlines():
         m = re.match(r"^\s*===\s*FILE:\s*(.+?)\s*===\s*$", line)
@@ -155,7 +162,8 @@ def grade(lv, files, d):
         if want.get("content_scripts"):
             add(bool(mf.get("content_scripts")), "declares content_scripts")
         if want.get("action"):
-            add(bool(mf.get("action")), "declares action (popup)")
+            # "action": {} is correct and complete; bool({}) is False, so test for the KEY (12.11.2026)
+            add("action" in mf, "declares action (popup)")
         for p in want.get("perms", []):
             add(p in (mf.get("permissions") or []), f"permission {p}")
         for h in want.get("hosts", []):

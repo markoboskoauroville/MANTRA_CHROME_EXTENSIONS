@@ -1,0 +1,6 @@
+{
+  "name": "DefaultConfig",
+  "version": 1.0,
+  "enabled": true,
+  "hosts": ["localhost", "127.0.0.1", "0.0.0.0"]
+}

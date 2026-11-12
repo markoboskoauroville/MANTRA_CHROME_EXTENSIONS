@@ -1,0 +1,21 @@
+{
+  "when": "2026-11-12 08:07",
+  "passed": 1,
+  "of": 1,
+  "cost_usd": 0.00511,
+  "results": [
+    {
+      "key": "trio",
+      "pass": true,
+      "secs": 1.3,
+      "cost": 0.0051064000000000005,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "page.html",
+        "style.css",
+        "app.js"
+      ]
+    }
+  ]
+}

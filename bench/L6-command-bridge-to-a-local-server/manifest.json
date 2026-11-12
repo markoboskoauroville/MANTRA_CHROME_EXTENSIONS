@@ -2,9 +2,7 @@
   "manifest_version": 3,
   "name": "Mantra Bridge",
   "version": "1.0.0",
-  "description": "Bridges local AI instructions to browser DOM actions.",
-  "permissions": ["tabs", "activeTab", "scripting", "storage"],
-  "host_permissions": ["http://127.0.0.1:8765/*"],
+  "description": "Bridges local Queen API commands to the active browser tab.",
   "background": {
     "service_worker": "background.js"
   },
@@ -13,5 +11,8 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8765/*"
   ]
 }

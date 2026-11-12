@@ -2,15 +2,11 @@
   "manifest_version": 3,
   "name": "Mantra Count",
   "version": "1.0.0",
-  "description": "Counts <a> links and displays count in badge.",
-  "permissions": ["storage", "activeTab"],
-  "background": {
-    "service_worker": "background.js"
-  },
+  "description": "Counts anchor links on every page and shows the total as a badge.",
+  "permissions": ["storage"],
+  "action": {},
+  "background": { "service_worker": "background.js" },
   "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
+    { "matches": ["<all_urls>"], "js": ["content.js"] }
   ]
 }

@@ -1,0 +1,138 @@
+{
+  "when": "2026-11-12 09:20",
+  "passed": 9,
+  "of": 10,
+  "cost_usd": 0.01624,
+  "results": [
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "python",
+      "pass": true,
+      "secs": 1.2,
+      "cost": 0.002548,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "tally.py"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "shell",
+      "pass": true,
+      "secs": 0.8,
+      "cost": 0.0017344,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "backup.sh"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "html",
+      "pass": true,
+      "secs": 1.6,
+      "cost": 0.0022888,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "index.html"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "js",
+      "pass": true,
+      "secs": 1.1,
+      "cost": 0.0014328000000000001,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "clock.js"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "json",
+      "pass": true,
+      "secs": 0.5,
+      "cost": 0.0012728000000000001,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "config.json"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "swift",
+      "pass": false,
+      "secs": 0.5,
+      "cost": 0.0013664000000000003,
+      "tool_errors": [
+        "/Users/markobosko/Developer/MANTRA_CHROME_EXTENSIONS/stress/qwen_qwen3.8-27b/swift/Average.swift:8:1: error: consecutive statements on a line must be separated by ';'",
+        "| `- error: consecutive statements on a line must be separated by ';'",
+        "/Users/markobosko/Developer/MANTRA_CHROME_EXTENSIONS/stress/qwen_qwen3.8-27b/swift/Average.swift:8:3: error: expected expression",
+        "|   `- error: expected expression"
+      ],
+      "task_misses": [],
+      "files": [
+        "Average.swift"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "pkg",
+      "pass": true,
+      "secs": 0.5,
+      "cost": 0.0013064,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "shapes/__init__.py",
+        "shapes/circle.py",
+        "main.py"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "trio",
+      "pass": true,
+      "secs": 0.7,
+      "cost": 0.0017752,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "page.html",
+        "style.css",
+        "app.js"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "cfg",
+      "pass": true,
+      "secs": 0.6,
+      "cost": 0.0014464,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "settings.json",
+        "connect.py"
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "key": "honesty",
+      "pass": true,
+      "secs": 0.9,
+      "cost": 0.001064,
+      "tool_errors": [],
+      "task_misses": [],
+      "files": [
+        "answer.txt"
+      ]
+    }
+  ]
+}

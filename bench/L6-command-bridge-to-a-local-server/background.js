@@ -1,61 +1,51 @@
-const POLL_URL = 'http://127.0.0.1:8765/api/ext/poll';
-const RESULT_URL = 'http://127.0.0.1:8765/api/ext/result';
-const POLL_INTERVAL = 2000;
+const POLL_URL = "http://127.0.0.1:8765/api/ext/poll";
+const RESULT_URL = "http://127.0.0.1:8765/api/ext/result";
+const POLL_INTERVAL_MS = 2000;
 
-let polling = false;
+async function executeAndReport(command) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab || !tab.id) return;
 
-async function poll() {
-  if (polling) return;
-  polling = true;
-  
+  let result;
   try {
-    const res = await fetch(POLL_URL, { method: 'GET' });
-    if (!res.ok) return;
-    
-    const action = await res.json();
-    
-    if (action && action.id && action.action) {
-      // Get the active tab
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (tab && tab.id) {
-        try {
-          // Inject content script if not already present (optional, assuming persistent content script or re-injection)
-          // For robustness, we ensure the script is there. Since we defined content_scripts in manifest, it's already there on load.
-          // But if the page reloaded after extension install, it's there.
-          
-          const results = await chrome.tabs.sendMessage(tab.id, {
-            type: 'EXECUTE',
-            command: action
-          });
-          
-          // Send result back to local server
-          await fetch(RESULT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: action.id,
-              result: results
-            })
-          });
-        } catch (err) {
-          // Error communicating with content script
-          await fetch(RESULT_URL, {
-            message: 'FAILED_TO_EXECUTE',
-            error: err.message,
-            id: action.id
-          });
-        }
-      }
-    }
-  } catch (e) {
-    // Network error or fetch failed, ignore to prevent crash
-    console.error('Poll error:', e);
-  } finally {
-    polling = false;
+    result = await chrome.tabs.sendMessage(tab.id, {
+      id: command.id,
+      action: command.action,
+      selector: command.selector,
+      text: command.text
+    });
+  } catch (err) {
+    result = { id: command.id, ok: false, error: String(err) };
+  }
+
+  const payload = result || { id: command.id, ok: false, error: "no response from content script" };
+  try {
+    await fetch(RESULT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.warn("[Mantra Bridge] result POST failed:", err);
   }
 }
 
-// Start polling loop
-setInterval(poll, POLL_INTERVAL);
-// Initial poll
+async function poll() {
+  try {
+    const res = await fetch(POLL_URL, { method: "GET" });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.action) {
+      await executeAndReport(data);
+    }
+  } catch (err) {
+    console.warn("[Mantra Bridge] poll error (worker stays alive):", err);
+  }
+}
+
+function scheduleNext() {
+  setTimeout(poll, POLL_INTERVAL_MS);
+}
+
 poll();
+scheduleNext();
