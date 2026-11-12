@@ -93,7 +93,7 @@ def check(d):
             if not ok(m):
                 problems.append({"level": "error",
                                  "what": f'chrome.{api} is used in {", ".join(sorted(where))} but the manifest has no {label}',
-                                 "fix": (f'add "action": {{}} to the manifest' if api == "action"
+                                 "fix": ('add "action": {} to the manifest' if api == "action"
                                          else f'add "{api}" to "permissions"')})
 
     # 3b. chrome.tabs: tab.id is fine under activeTab; tab.url / tab.title are not
