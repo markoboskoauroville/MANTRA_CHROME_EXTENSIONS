@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Mantra Hands",
+  "version": "1.0.0",
+  "description": "Human-like typing and clicking for web automation.",
+  "permissions": ["activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

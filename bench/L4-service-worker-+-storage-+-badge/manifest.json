@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Mantra Count",
+  "version": "1.0.0",
+  "description": "Counts <a> links and displays count in badge.",
+  "permissions": ["storage", "activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

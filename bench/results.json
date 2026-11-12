@@ -1,0 +1,42 @@
+{
+  "when": "2026-11-12 06:52",
+  "total_cost_usd": 0.013,
+  "results": [
+    {
+      "level": 4,
+      "name": "service worker + storage + badge",
+      "pass": false,
+      "checks_total": 17,
+      "checks_failed": 1,
+      "failed": [
+        "declares action (popup)"
+      ],
+      "secs": 1.2,
+      "cost_usd": 0.006239200000000001,
+      "model": "qwen/qwen3.8-27b",
+      "files": [
+        "manifest.json",
+        "content.js",
+        "background.js"
+      ]
+    },
+    {
+      "level": 5,
+      "name": "reads a number off a page",
+      "pass": false,
+      "checks_total": 15,
+      "checks_failed": 1,
+      "failed": [
+        "every file the manifest names was written"
+      ],
+      "secs": 1.4,
+      "cost_usd": 0.006760800000000001,
+      "model": "qwen/qwen3.8-27b",
+      "files": [
+        "manifest.json",
+        "content.js",
+        "background.js"
+      ]
+    }
+  ]
+}
